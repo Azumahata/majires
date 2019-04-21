@@ -43,23 +43,21 @@ function getComments($roomId, $offset) {
   $pdo = getPDO();
   $sql = <<<SQL
 SELECT
-  id,
-  room_id,
-  content,
-  created_at,
-  IFNULL(likes, 0) as likes
+  comments.id,
+  comments.content,
+  comments.created_at,
+  IFNULL(COUNT(likes.comment_id), 0) as likes
 FROM
   comments
-  LEFT OUTER JOIN (SELECT comment_id, COUNT(1) likes FROM likes GROUP BY  comment_id) as likes
+  LEFT OUTER JOIN likes
   ON (comments.id = likes.comment_id)
 WHERE
   id > ? AND room_id = ?
 GROUP BY 
-  id,
-  room_id,
-  content,
-  created_at
-ORDER BY created_at
+  comments.id,
+  comments.content,
+  comments.created_at
+ORDER BY comments.created_at
 SQL;
   $stmt = $pdo->prepare($sql);
   $stmt->execute(array($offset ? $offset : 0, $roomId));

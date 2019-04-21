@@ -6,7 +6,8 @@ define('DB_NAME',   'majires');
 define('DB_USER',   'root');
 define('DB_PASSWD', '');
 
-define('DB_CONNECT_STRING' ,'mysql:host='.DB_HOST.';dbname='.DB_NAME);
+define('DB_CONNECT_STRING' ,'mysql:host='.DB_HOST.';dbname='.DB_NAME.';charset:utf8');
+define('POLLING_INTERVAL_MS', '1000');
 
 $sessionFlg = session_start();
 
@@ -19,7 +20,9 @@ function redirect($location, $params) {
   exit;
 }
 function getRoomLocation($id) {
-  return './room.php?' . http_build_query(array('room_id' => $id));
+  return './room.php?' . http_build_query(array(
+    'room_id' => $id,
+  ));
 }
 
 function errorRedirect() {

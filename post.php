@@ -20,6 +20,7 @@ function createRoom() {
 }
 
 function postComment() {
+  if (!$_POST['content']) return;
   $pdo = getPDO();
   $pdo->beginTransaction();
   try {
