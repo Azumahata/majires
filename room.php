@@ -35,10 +35,7 @@ $(function() {
       this._obj.removeClass("template");
 
       this.updateData(data);
-      $(".like", this._obj).on( "click", function() {
-        postLike(data['id']);
-        $(this).css("background-color", "#888");
-      });
+
       return this;
     },
     updateData : function(data) {
@@ -56,8 +53,19 @@ $(function() {
       $(".like .count", this._obj).text(count);
       $(".like", this._obj).addClass("shake");
     },
+    binds : function() {
+      $(".like", this._obj).unbind("click", this._bindPostLike(this));
+      $(".like", this._obj).bind("click",   this._bindPostLike(this));
+    },
+    _bindPostLike : function(that) {
+      return function() {
+        postLike(that._data['id']);
+        $(".like", that._obj).css("background-color", "#888");
+      }
+    },
     upsertObj : function(force) {
       if (force === true || !commentObjs[this._data['id']]) {
+        this.binds();
         $commentsList.prepend( this._obj);
         commentObjs[this._data['id']] = this;
       } else {
@@ -124,10 +132,11 @@ $(function() {
 <style type='text/css'>  
 .template { display:none; }
 
-.room .overview pre { background-color:#eee; padding:8px 16px; margin:8px; white-space: pre-wrap; width:80%; }
+pre { white-space: pre-wrap;  }
+.room .overview pre { background-color:#eee; padding:8px 16px; margin:8px; width:80%; }
 
 .comment-box {
-  width:60%; height:100%; opacity:1;
+  width:70%; height:100%; opacity:1;
   box-shadow: 2px 2px 2px rgba(0,0,0,0.2);
   border: 1px solid #888;
   border-radius: 5px;
