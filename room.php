@@ -151,11 +151,14 @@ $(function() {
       sorted[i].upsertObj(true);
   };
 
-  sortCreatedAt = function(commentId) {
+  sortCreatedAt = function() {
     sortFunfcion(function(a, b) { return a._data['id'] - b._data['id']; })
   };
-  sortLikesCount = function(commentId) {
+  sortLikesCount = function() {
     sortFunfcion(function(a, b) { return a._data['likes'] - b._data['likes'] });
+  };
+  sortRepliesCount = function() {
+    sortFunfcion(function(a, b) { console.log(a._data['replies'].length); return a._data['replies'].length - b._data['replies'].length });
   };
 });
 </script>
@@ -201,6 +204,7 @@ pre { white-space: pre-wrap;  }
   width:70%; padding-left:16px;
   line-height: 128%; 
   float:left;
+  font-size: 1.3em;
 }
 
 .comment-box .reply-text {
@@ -220,7 +224,7 @@ pre { white-space: pre-wrap;  }
 </style>
 
 <div class='room'>
-  <h2><?php echo $room['title'] ?></h2>
+  <h2><?php echo htmlspecialchars($room['title']) ?></h2>
   <div class="overview"><pre><?php echo $room['overview'] ?></pre></div>
 </div>
 
@@ -232,6 +236,7 @@ pre { white-space: pre-wrap;  }
   </p>
   <button onclick="sortCreatedAt()">⏰</button>
   <button onclick="sortLikesCount()">👍</button>
+  <button onclick="sortRepliesCount()">↩</button>
 </div>
 
 <div class="comment-box template">

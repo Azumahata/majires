@@ -71,6 +71,7 @@ SQL;
       $replies[] = $comment;
     } else {
       $comments[$comment['id']] = $comment;
+      $comments[$comment['id']]['replies'] = array();
     }
   }
   foreach ($replies as $reply) {
@@ -81,9 +82,6 @@ SQL;
     $comments[$reply['parent_comment_id']]['replies'][] = $reply;
   }
   return array_values($comments);
-}
-
-function getReplies($commentIds) {
 }
 
 switch ($_GET['act']) {

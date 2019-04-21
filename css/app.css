@@ -52,3 +52,16 @@ table tr:nth-child(odd) { background-color: #eee }
 
 h2 { color: #444; padding-left:8px; border-bottom: 3px dotted #888; }
 
+
+button {
+  padding: 0.5em 1em;
+  background: #888;
+  color: #FFF;
+  border-bottom: solid 2px #679;
+  border-radius: 2px;
+}
+button:active {
+  transform: translateY(4px);
+  box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.2);
+  border-bottom: none;
+}
