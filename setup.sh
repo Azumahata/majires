@@ -1,5 +1,6 @@
 #!/bin/bash
-echo 'CREATE DATABASE majires' | mysql -u root
+echo 'SHOW DATABASES'  | mysql -u root | grep 'majires' > /dev/null || \
+  echo 'CREATE DATABASE majires' | mysql -u root
 
 SQL=$(cat <<'SQL'
 DROP TABLE IF EXISTS `rooms`; CREATE TABLE `rooms` (
@@ -13,6 +14,7 @@ DROP TABLE IF EXISTS `rooms`; CREATE TABLE `rooms` (
 ;
 DROP TABLE IF EXISTS `comments`; CREATE TABLE `comments` (
   `id` int auto_increment,
+  `parent_comment_id` int NOT NULL DEFAULT 0,
   `room_id` int NOT NULL,
   `content` TEXT NOT NULL,
   `created_at` datetime NOT NULL,

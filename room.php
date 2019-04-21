@@ -9,18 +9,22 @@ $room = getRoom($roomId);
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
 <script type='text/javascript'> 
 $(function() {
+  var postCommentFunction = function(parentId, $inputText) {
+    return function() {
+      $.post('./post.php', {
+        act : 'post_comment',
+        room_id : <?php echo $roomId ?>,
+        parent_id : parentId,
+        content : $inputText.val(),
+        success : function() {
+          $inputText.val('');
+        },
+      })
+    };
+  };
+
   var postComment = document.getElementById('post_comment');
-  postComment.addEventListener('click', function() {
-    var $comment = $("#comment-textarea");
-    $.post('./post.php', {
-      act : 'post_comment',
-      room_id : <?php echo $roomId ?>,
-      content : $comment.val(),
-      success : function() {
-        $comment.val('');
-      },
-    });
-  });
+  postComment.addEventListener('click', postCommentFunction(0, $("#comment-textarea")));
 
   var currentOffset = 0;
   var $commentsList = $("#comments");
@@ -28,11 +32,19 @@ $(function() {
   var commentObjs = {}; // comment_id : obj
 
   var commentObj = {
-    _obj : null,
     _data : {},
+    _obj : null,
+    _$like : null,
+    _$replyText : null,
+    _$replyArea : null,
+    _$replies :null,
     init : function($obj, data) {
       this._obj = $obj;
       this._obj.removeClass("template");
+      this._$like = $(".like", this._obj);
+      this._$replyText = $(".reply-text", this._obj);
+      this._$replyArea = $(".reply-area", this._obj);
+      this._$replies   = $(".replies", this._obj);
 
       this.updateData(data);
 
@@ -41,6 +53,7 @@ $(function() {
     updateData : function(data) {
       this.setComment(data['content']);
       this.setLikesCount(data['likes']);
+      this._updateReplies(data['replies']);
       this._data = data;
     },
     setComment : function(comment) {
@@ -48,25 +61,42 @@ $(function() {
       $(".content pre", this._obj).text(comment);
     },
     setLikesCount : function(count) {
-      $(".like", this._obj).removeClass("shake");
+      this._$like.removeClass("shake");
       if (this._data['likes'] == count) return;
-      $(".like .count", this._obj).text(count);
-      $(".like", this._obj).addClass("shake");
+      $(".count", this._$like).text(count);
+      this._$like.addClass("shake");
     },
     binds : function() {
-      $(".like", this._obj).unbind("click", this._bindPostLike(this));
-      $(".like", this._obj).bind("click",   this._bindPostLike(this));
+      this._$like.unbind("click", this._bindPostLike(this));
+      this._$like.bind("click",   this._bindPostLike(this));
+      this._$replyText.unbind("click", this._bindReplyAreaDispToggle(this));
+      this._$replyText.bind("click",   this._bindReplyAreaDispToggle(this));
+      $("button.send-reply", this._$replyArea).bind('click',
+         postCommentFunction(this._data['id'], $(".reply-comment", this._$replyArea))
+      );
     },
     _bindPostLike : function(that) {
       return function() {
         postLike(that._data['id']);
-        $(".like", that._obj).css("background-color", "#888");
+        that._$like.css("background-color", "#888");
+      }
+    },
+    _bindReplyAreaDispToggle : function(that) {
+      return function() {
+        that._$replyArea.toggleClass("disp-none");
+      }
+    },
+    _updateReplies : function(replies) {
+      if (!replies) return;
+      this._$replies.empty();
+      for (var i = 0; i < replies.length; ++i) {
+        this._$replies.append($('<p>' + replies[i]['content'] + '</p>'));
       }
     },
     upsertObj : function(force) {
       if (force === true || !commentObjs[this._data['id']]) {
         this.binds();
-        $commentsList.prepend( this._obj);
+        $commentsList.prepend(this._obj);
         commentObjs[this._data['id']] = this;
       } else {
         commentObjs[this._data['id']].updateData(this._data);
@@ -131,6 +161,7 @@ $(function() {
 </script>
 <style type='text/css'>  
 .template { display:none; }
+.disp-none { display:none; }
 
 pre { white-space: pre-wrap;  }
 .room .overview pre { background-color:#eee; padding:8px 16px; margin:8px; width:80%; }
@@ -172,11 +203,19 @@ pre { white-space: pre-wrap;  }
   float:left;
 }
 
-.comment-box .reply {
+.comment-box .reply-text {
   float:right;
   padding: 8px;
 }
-.comment-box .reply:before { content: '↩'; }
+.comment-box .reply-text:before { content: '↩'; }
+.comment-box .replies p {
+  text-align:right;
+  width:80%;
+  font-size: 0.5em;
+  padding:8px 16px;
+  color: #808;
+  border-top: 1px solid #888; 
+}
 
 </style>
 
@@ -201,8 +240,14 @@ pre { white-space: pre-wrap;  }
      <div class='count'>128</div>
   </div>
   <div class="content"><pre></pre></div>
-  <div class="reply tar">返信</div>
+  <div class="reply-text tar">返信</div>
   <div class="cb"></div>
+  <div class="reply-area tar disp-none">
+    <input type="text" class="reply-comment" size="40"/>
+    <button class='send-reply'>↩</button>
+  </div>
+  <div class="replies">
+  </div>
 </div>
 <div id='comments'>
 </div>

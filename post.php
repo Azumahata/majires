@@ -21,11 +21,12 @@ function createRoom() {
 
 function postComment() {
   if (!$_POST['content']) return;
+  if (!is_numeric($_POST['parent_id'])) $_POST['parent_id'] = 0;
   $pdo = getPDO();
   $pdo->beginTransaction();
   try {
-    $stmt = $pdo->prepare('INSERT INTO comments VALUES(NULL, ?, ?, NOW())');
-    $stmt->execute(array($_POST['room_id'], $_POST['content']));
+    $stmt = $pdo->prepare('INSERT INTO comments VALUES(NULL, ?, ?, ?, NOW())');
+    $stmt->execute(array($_POST['parent_id'], $_POST['room_id'], $_POST['content']));
     $lastInsertId = $pdo->lastInsertId('id');
     $pdo->commit();
 
