@@ -204,19 +204,18 @@ pre { white-space: pre-wrap;  }
   width:70%; padding-left:16px;
   line-height: 128%; 
   float:left;
-  font-size: 1.3em;
+  font-size: 2em;
 }
 
 .comment-box .reply-text {
   float:right;
-  padding: 8px;
 }
 .comment-box .reply-text:before { content: '↩'; }
 .comment-box .replies p {
   text-align:right;
   width:80%;
-  font-size: 0.5em;
-  padding:8px 16px;
+  font-size: 1em;
+  padding:4px 8px;
   color: #808;
   border-top: 1px solid #888; 
 }
