@@ -16,6 +16,7 @@ DROP TABLE IF EXISTS `comments`; CREATE TABLE `comments` (
   `id` int auto_increment,
   `parent_comment_id` int NOT NULL DEFAULT 0,
   `room_id` int NOT NULL,
+  `comment_type` int NOT NULL DEFAULT 0,
   `content` TEXT NOT NULL,
   `created_at` datetime NOT NULL,
   PRIMARY KEY (`id`),

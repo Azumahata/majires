@@ -9,12 +9,13 @@ $room = getRoom($roomId);
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
 <script type='text/javascript'> 
 $(function() {
-  var postCommentFunction = function(parentId, $inputText) {
+  var postCommentFunction = function(parentId, commentType, $inputText) {
     return function() {
       $.post('./post.php', {
         act : 'post_comment',
         room_id : <?php echo $roomId ?>,
         parent_id : parentId,
+        comment_type : parentId == 0 ? $('input[name=comment_type]:checked').val() : 3,
         content : $inputText.val(),
         success : function() {
           $inputText.val('');
@@ -24,7 +25,7 @@ $(function() {
   };
 
   var postComment = document.getElementById('post_comment');
-  postComment.addEventListener('click', postCommentFunction(0, $("#comment-textarea")));
+  postComment.addEventListener('click', postCommentFunction(0, null, $("#comment-textarea")));
 
   var currentOffset = 0;
   var $commentsList = $("#comments");
@@ -54,6 +55,9 @@ $(function() {
       this.setComment(data['content']);
       this.setLikesCount(data['likes']);
       this._updateReplies(data['replies']);
+      if (data.comment_type != 0) {
+        this._$like.addClass("disp-none");
+      }
       this._data = data;
     },
     setComment : function(comment) {
@@ -72,7 +76,7 @@ $(function() {
       this._$replyText.unbind("click", this._bindReplyAreaDispToggle(this));
       this._$replyText.bind("click",   this._bindReplyAreaDispToggle(this));
       $("button.send-reply", this._$replyArea).bind('click',
-         postCommentFunction(this._data['id'], $(".reply-comment", this._$replyArea))
+         postCommentFunction(this._data['id'], 1, $(".reply-comment", this._$replyArea))
       );
     },
     _bindPostLike : function(that) {
@@ -231,6 +235,8 @@ pre { white-space: pre-wrap;  }
   <p>
     <label>コメント:<textarea id='comment-textarea' class="textlines" rows="3" name='overview' cols="80"></textarea>
       <button id='post_comment'>送信</button>
+      <input type="radio" name="comment_type" value="0" checked>質問</input>
+      <input type="radio" name="comment_type" value="1">コメント</input>
     </label>
   </p>
   <button onclick="sortCreatedAt()">⏰</button>

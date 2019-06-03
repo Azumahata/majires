@@ -45,6 +45,7 @@ function getComments($roomId, $offset) {
 SELECT
   comments.id,
   comments.parent_comment_id,
+  comments.comment_type,
   comments.content,
   comments.created_at,
   IFNULL(COUNT(likes.comment_id), 0) as likes
