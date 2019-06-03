@@ -31,6 +31,10 @@ $(function() {
   var $commentsList = $("#comments");
   var $commentTemplate = $(".comment-box.template");
   var commentObjs = {}; // comment_id : obj
+  var fixed = {
+    id : Number.MAX_VALUE,
+    $obj : null
+  }
 
   var commentObj = {
     _data : {},
@@ -48,10 +52,14 @@ $(function() {
       this._$replies   = $(".replies", this._obj);
 
       this.updateData(data);
-
       return this;
     },
     updateData : function(data) {
+      if (~~data['id'] <= fixed.id) {
+        fixed.id = ~~data['id'];
+        fixed.$obj = this._obj;
+      }
+
       this.setComment(data['content']);
       this.setLikesCount(data['likes']);
       this._updateReplies(data['replies']);
@@ -100,7 +108,11 @@ $(function() {
     upsertObj : function(force) {
       if (force === true || !commentObjs[this._data['id']]) {
         this.binds();
-        $commentsList.prepend(this._obj);
+        if (fixed.$obj === this._obj) {
+          $commentsList.prepend(this._obj);
+        } else {
+          fixed.$obj.after(this._obj);
+        }
         commentObjs[this._data['id']] = this;
       } else {
         commentObjs[this._data['id']].updateData(this._data);
@@ -156,13 +168,13 @@ $(function() {
   };
 
   sortCreatedAt = function() {
-    sortFunfcion(function(a, b) { return a._data['id'] - b._data['id']; })
+    sortFunfcion(function(a, b) { return fixed.id === ~~a._data['id'] ? 1 : a._data['id'] - b._data['id']; })
   };
   sortLikesCount = function() {
-    sortFunfcion(function(a, b) { return a._data['likes'] - b._data['likes'] });
+    sortFunfcion(function(a, b) { return fixed.id === ~~a._data['id'] ? 1 : ~~a._data['likes'] - ~~b._data['likes'] });
   };
   sortRepliesCount = function() {
-    sortFunfcion(function(a, b) { console.log(a._data['replies'].length); return a._data['replies'].length - b._data['replies'].length });
+    sortFunfcion(function(a, b) { return fixed.id === ~~a._data['id'] ? 1 : a._data['replies'].length - b._data['replies'].length });
   };
 });
 </script>
